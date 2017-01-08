@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from django.core.urlresolvers import reverse
 from unidecode import unidecode
 
 class Image(models.Model):
@@ -8,7 +9,7 @@ class Image(models.Model):
 							related_name='images_created')
 	title = models.CharField(max_length=200)
 	slug = models.SlugField(max_length=200, blank=True)
-	url = models.URLField()
+	url = models.URLField(blank=True)
 	image = models.ImageField(upload_to='images/%Y/%m/%d')
 	description = models.TextField(blank=True)
 	created = models.DateField(auto_now_add=True,
@@ -24,3 +25,6 @@ class Image(models.Model):
 		if not self.slug:
 			self.slug = slugify(unidecode(self.title))
 			super(Image, self).save(*args, **kwargs)
+
+	def get_absolute_url(self):
+		return reverse('images:detail', args=[self.id, self.slug])
